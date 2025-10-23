@@ -1,117 +1,272 @@
-# Employee Management REST API
+# Employee Management REST API - Complete Setup Guide
 
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://www.oracle.com/java/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.10-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![Gradle](https://img.shields.io/badge/Gradle-8.10.2-blue.svg)](https://gradle.org/)
-[![License](https://img.shields.io/badge/License-Educational-yellow.svg)]()
 
-A RESTful API for managing employee information, built with Spring Boot. This project provides endpoints for viewing and creating employee records with automatic UUID generation and data validation.
+A RESTful API for managing employee information, built with Spring Boot. This guide will walk you through **every step** from setup to running and testing the application.
 
-## Table of Contents
+---
 
-- [Features](#features)
+## 📋 Table of Contents
+
 - [Prerequisites](#prerequisites)
-- [Installation](#installation)
+- [Initial Setup](#initial-setup)
+- [Configuration Steps](#configuration-steps)
+- [Building the Project](#building-the-project)
 - [Running the Application](#running-the-application)
-- [API Endpoints](#api-endpoints)
-- [Usage Examples](#usage-examples)
-- [Project Structure](#project-structure)
-- [Testing](#testing)
+- [Testing the API](#testing-the-api)
+- [API Documentation](#api-documentation)
 - [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+- [Project Structure](#project-structure)
 
-## Features
+---
 
-- ✅ RESTful API design with proper HTTP methods
-- ✅ In-memory data storage with pre-loaded mock data
-- ✅ Automatic UUID generation for employees
-- ✅ Comprehensive input validation
-- ✅ Clean architecture (Controller → Service → Data layers)
-- ✅ Detailed error handling with descriptive messages
-- ✅ Code formatting with Spotless
+## 🔧 Prerequisites
 
-## Prerequisites
+### Required Software
 
-- **Java 21** or higher
-- **Gradle** (wrapper included)
-- **curl** or **Postman** (for testing)
+1. **Java 21 or Higher**
+   
+   Check if you have Java installed:
+   ```bash
+   java -version
+   ```
+   
+   You should see:
+   ```
+   openjdk version "21" or higher
+   ```
+   
+   **Don't have Java 21?** Install it:
+   
+   **macOS:**
+   ```bash
+   brew install openjdk@21
+   sudo ln -sfn /opt/homebrew/opt/openjdk@21/libexec/openjdk.jdk /Library/Java/JavaVirtualMachines/openjdk-21.jdk
+   ```
+   
+   **Windows:**
+   Download from [Adoptium](https://adoptium.net/) or [Oracle](https://www.oracle.com/java/technologies/downloads/)
+   
+   **Linux:**
+   ```bash
+   sudo apt update
+   sudo apt install openjdk-21-jdk
+   ```
 
-### Verify Java Installation
+2. **Internet Connection** (for downloading dependencies)
+
+3. **Terminal/Command Prompt**
+
+---
+
+## 🚀 Initial Setup
+
+### Step 1: Clone or Download the Project
 
 ```bash
-java -version
-```
-
-Expected output:
-```
-openjdk version "21" or higher
-```
-
-## Installation
-
-1. **Clone the repository**
-
-```bash
-git clone <repository-url>
+# If you have it as a zip, extract it first
+# Then navigate to the project directory
 cd entry-level-java-challenge
 ```
 
-2. **Make Gradle wrapper executable** (Mac/Linux only)
+### Step 2: Make Gradle Wrapper Executable (Mac/Linux Only)
 
 ```bash
 chmod +x gradlew
 ```
 
-3. **Build the project**
+**Windows users:** Skip this step, use `gradlew.bat` instead of `./gradlew`
+
+---
+
+## ⚙️ Configuration Steps
+
+### Step 1: Verify/Update Gradle Version
+
+The project requires Gradle 8.10.2 or higher. Let's ensure it's set correctly:
+
+```bash
+# Check current Gradle version in the wrapper properties
+cat gradle/wrapper/gradle-wrapper.properties
+```
+
+**If you see `gradle-7.6.4` or lower,** update it:
+
+```bash
+# Update to Gradle 8.10.2
+sed -i '' 's/gradle-7.6.4-bin.zip/gradle-8.10.2-bin.zip/' gradle/wrapper/gradle-wrapper.properties
+```
+
+**Windows users:**
+Open `gradle/wrapper/gradle-wrapper.properties` in a text editor and change:
+```
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.10.2-bin.zip
+```
+
+### Step 2: Update Java Version in Build Configuration
+
+```bash
+# Update Java version to 21 in the build configuration
+sed -i '' 's/JavaLanguageVersion.of(17)/JavaLanguageVersion.of(21)/' buildSrc/src/main/groovy/project-conventions.gradle
+```
+
+**Windows users:**
+Open `buildSrc/src/main/groovy/project-conventions.gradle` and change:
+```groovy
+languageVersion = JavaLanguageVersion.of(21)
+```
+
+### Step 3: Clean All Cached Files
+
+```bash
+# Remove all buildSrc compiled files
+find buildSrc -name "*.class" -type f -delete
+
+# Remove build directories
+rm -rf buildSrc/build
+rm -rf .gradle
+rm -rf api/build
+```
+
+**Windows users:**
+```cmd
+rmdir /s /q buildSrc\build
+rmdir /s /q .gradle
+rmdir /s /q api\build
+```
+
+### Step 4: Set Java 21 as Active (Important!)
+
+```bash
+# macOS/Linux: Set JAVA_HOME to Java 21
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Verify it's set correctly
+java -version
+```
+
+You should now see Java 21!
+
+**Windows users:**
+```cmd
+# Find your Java 21 installation path, typically:
+# C:\Program Files\Java\jdk-21
+# Then set JAVA_HOME:
+set JAVA_HOME=C:\Program Files\Java\jdk-21
+set PATH=%JAVA_HOME%\bin;%PATH%
+```
+
+**To make this permanent (Mac/Linux):**
+Add to your `~/.zshrc` or `~/.bashrc`:
+```bash
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+```
+
+### Step 5: Stop Any Running Gradle Daemons
+
+```bash
+./gradlew --stop
+```
+
+This ensures a fresh start with the correct Java version.
+
+---
+
+## 🔨 Building the Project
+
+### Step 1: Format the Code (Required)
+
+The project uses Spotless for code formatting. **You must run this before building:**
+
+```bash
+./gradlew spotlessApply
+```
+
+This will automatically format all Java files according to the project's style guidelines.
+
+### Step 2: Build the Project
 
 ```bash
 ./gradlew build
 ```
 
-## Running the Application
+**Expected output:**
+```
+BUILD SUCCESSFUL in Xs
+```
 
-### Start the Server
+**If you see formatting violations:**
+```bash
+# Run spotless again
+./gradlew spotlessApply
+
+# Then build
+./gradlew build
+```
+
+**If build fails with Java version errors:**
+- Make sure you completed Step 4 in Configuration (setting JAVA_HOME)
+- Run `java -version` to verify you're using Java 21
+- Try `./gradlew --stop` then `./gradlew build` again
+
+---
+
+## 🎯 Running the Application
+
+### Step 1: Start the Server
 
 ```bash
 ./gradlew bootRun
 ```
 
-The application will start on **http://localhost:8080**
+### Step 2: Wait for Server to Start
 
-Wait for the following output:
+You'll see output like this:
 ```
+  .   ____          _            __ _ _
+ /\\ / ___'_ __ _ _(_)_ __  __ _ \ \ \ \
+( ( )\___ | '_ | '_| | '_ \/ _` | \ \ \ \
+ \\/  ___)| |_)| | | | | || (_| |  ) ) ) )
+  '  |____| .__|_| |_|_| |_\__, | / / / /
+ =========|_|==============|___/=/_/_/_/
+ :: Spring Boot ::               (v3.2.10)
+
+Tomcat initialized with port 8080 (http)
 Tomcat started on port 8080 (http) with context path ''
 Started EntryLevelJavaChallengeApplication in X.XXX seconds
 ```
 
-### Stop the Server
+**Important:** The terminal will show "IDLE" - this is normal! The server is running and waiting for requests.
 
-Press `Ctrl + C` in the terminal where the server is running.
+### Step 3: Keep This Terminal Open
 
-## API Endpoints
+**Do NOT close this terminal!** The server needs to stay running.
 
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| `GET` | `/api/v1/employee` | Retrieve all employees |
-| `GET` | `/api/v1/employee/{uuid}` | Retrieve employee by UUID |
-| `POST` | `/api/v1/employee` | Create a new employee |
+---
 
-### Base URL
+## 🧪 Testing the API
 
-```
-http://localhost:8080/api/v1/employee
-```
+### Open a NEW Terminal Window
 
-## Usage Examples
+Keep the server running in the first terminal, and open a second terminal for testing.
 
-### 1. Get All Employees
+### Test 1: View All Employees
 
-**Request:**
+**Using Terminal:**
 ```bash
 curl http://localhost:8080/api/v1/employee
 ```
 
-**Response:**
+**Using Browser:**
+Open this URL:
+```
+http://localhost:8080/api/v1/employee
+```
+
+**Expected Response:**
+You'll see 5 pre-loaded employees in JSON format:
 ```json
 [
   {
@@ -125,25 +280,32 @@ curl http://localhost:8080/api/v1/employee
     "email": "john.doe@company.com",
     "contractHireDate": "2023-10-24T15:12:36.929351Z",
     "contractTerminationDate": null
-  }
+  },
+  ... (4 more employees)
 ]
 ```
 
-### 2. Get Employee by UUID
+### Test 2: View a Single Employee
 
-**Request:**
-```bash
-curl http://localhost:8080/api/v1/employee/{uuid}
+**Step 2a:** From the response above, **copy any UUID**. For example:
+```
+58852996-9c72-4406-8286-f9b77b290e9f
 ```
 
-Replace `{uuid}` with an actual employee UUID.
+**Step 2b:** Use that UUID in the request:
 
-**Example:**
+**Using Terminal:**
 ```bash
+# Replace the UUID with one you copied
 curl http://localhost:8080/api/v1/employee/58852996-9c72-4406-8286-f9b77b290e9f
 ```
 
-**Response:**
+**Using Browser:**
+```
+http://localhost:8080/api/v1/employee/58852996-9c72-4406-8286-f9b77b290e9f
+```
+
+**Expected Response:**
 ```json
 {
   "uuid": "58852996-9c72-4406-8286-f9b77b290e9f",
@@ -159,19 +321,9 @@ curl http://localhost:8080/api/v1/employee/58852996-9c72-4406-8286-f9b77b290e9f
 }
 ```
 
-**Error Response (404):**
-```json
-{
-  "timestamp": "2025-10-23T15:16:32.625+00:00",
-  "status": 404,
-  "error": "Not Found",
-  "message": "Employee not found with UUID: {uuid}"
-}
-```
+### Test 3: Create a New Employee
 
-### 3. Create New Employee
-
-**Request:**
+**Using Terminal:**
 ```bash
 curl -X POST http://localhost:8080/api/v1/employee \
   -H "Content-Type: application/json" \
@@ -185,7 +337,7 @@ curl -X POST http://localhost:8080/api/v1/employee \
   }'
 ```
 
-**Response (201 Created):**
+**Expected Response (201 Created):**
 ```json
 {
   "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
@@ -201,7 +353,136 @@ curl -X POST http://localhost:8080/api/v1/employee \
 }
 ```
 
-**Error Response (400 Bad Request):**
+### Test 4: Verify the New Employee Was Added
+
+```bash
+curl http://localhost:8080/api/v1/employee
+```
+
+You should now see **6 employees** including Alice!
+
+### Stopping the Server
+
+In the terminal where the server is running, press:
+```
+Ctrl + C
+```
+
+---
+
+## 📚 API Documentation
+
+### Base URL
+
+```
+http://localhost:8080/api/v1/employee
+```
+
+### Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `GET` | `/api/v1/employee` | Get all employees |
+| `GET` | `/api/v1/employee/{uuid}` | Get single employee by UUID |
+| `POST` | `/api/v1/employee` | Create new employee |
+
+### Request/Response Examples
+
+#### 1. GET All Employees
+
+**Request:**
+```bash
+GET /api/v1/employee
+```
+
+**Response: 200 OK**
+```json
+[
+  {
+    "uuid": "string",
+    "firstName": "string",
+    "lastName": "string",
+    "fullName": "string",
+    "salary": 0,
+    "age": 0,
+    "jobTitle": "string",
+    "email": "string",
+    "contractHireDate": "2025-10-23T15:12:36.929351Z",
+    "contractTerminationDate": null
+  }
+]
+```
+
+#### 2. GET Employee by UUID
+
+**Request:**
+```bash
+GET /api/v1/employee/{uuid}
+```
+
+**Response: 200 OK**
+```json
+{
+  "uuid": "58852996-9c72-4406-8286-f9b77b290e9f",
+  "firstName": "John",
+  "lastName": "Doe",
+  "fullName": "John Doe",
+  "salary": 75000,
+  "age": 30,
+  "jobTitle": "Software Engineer",
+  "email": "john.doe@company.com",
+  "contractHireDate": "2023-10-24T15:12:36.929351Z",
+  "contractTerminationDate": null
+}
+```
+
+**Response: 404 Not Found**
+```json
+{
+  "timestamp": "2025-10-23T15:16:32.625+00:00",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Employee not found with UUID: {uuid}"
+}
+```
+
+#### 3. POST Create Employee
+
+**Request:**
+```bash
+POST /api/v1/employee
+Content-Type: application/json
+```
+
+**Request Body:**
+```json
+{
+  "firstName": "Alice",
+  "lastName": "Johnson",
+  "salary": 85000,
+  "age": 29,
+  "jobTitle": "Data Scientist",
+  "email": "alice.johnson@company.com"
+}
+```
+
+**Response: 201 Created**
+```json
+{
+  "uuid": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+  "firstName": "Alice",
+  "lastName": "Johnson",
+  "fullName": "Alice Johnson",
+  "salary": 85000,
+  "age": 29,
+  "jobTitle": "Data Scientist",
+  "email": "alice.johnson@company.com",
+  "contractHireDate": "2025-10-23T15:35:00.123456Z",
+  "contractTerminationDate": null
+}
+```
+
+**Response: 400 Bad Request**
 ```json
 {
   "timestamp": "2025-10-23T15:16:32.625+00:00",
@@ -211,182 +492,263 @@ curl -X POST http://localhost:8080/api/v1/employee \
 }
 ```
 
-## Request Body Schema
-
-### Create Employee Request
+### Field Requirements
 
 | Field | Type | Required | Validation |
 |-------|------|----------|------------|
-| `firstName` | `String` | Yes | Cannot be empty |
-| `lastName` | `String` | Yes | Cannot be empty |
-| `email` | `String` | Yes | Cannot be empty |
-| `salary` | `Integer` | Yes | Must be ≥ 0 |
-| `age` | `Integer` | Yes | Must be between 18-120 |
-| `jobTitle` | `String` | No | Optional |
+| `firstName` | String | ✅ Yes | Cannot be empty |
+| `lastName` | String | ✅ Yes | Cannot be empty |
+| `email` | String | ✅ Yes | Cannot be empty |
+| `salary` | Integer | ✅ Yes | Must be ≥ 0 |
+| `age` | Integer | ✅ Yes | Must be between 18-120 |
+| `jobTitle` | String | ❌ No | Optional |
 
 ### Auto-Generated Fields
 
-- `uuid` - Automatically generated
-- `fullName` - Concatenation of firstName and lastName
+- `uuid` - Automatically generated on creation
+- `fullName` - Created from firstName + lastName
 - `contractHireDate` - Set to current timestamp
-- `contractTerminationDate` - null by default
+- `contractTerminationDate` - null by default (for active employees)
 
-## Project Structure
+### HTTP Status Codes
 
-```
-entry-level-java-challenge/
-├── api/
-│   └── src/
-│       └── main/
-│           └── java/
-│               └── com/challenge/api/
-│                   ├── controller/
-│                   │   └── EmployeeController.java      # REST endpoints
-│                   ├── service/
-│                   │   └── EmployeeService.java         # Business logic
-│                   ├── model/
-│                   │   ├── Employee.java                # Interface
-│                   │   └── EmployeeImpl.java            # Implementation
-│                   ├── dto/
-│                   │   └── CreateEmployeeRequest.java   # Request DTO
-│                   └── EntryLevelJavaChallengeApplication.java
-├── gradle/
-├── gradlew
-├── gradlew.bat
-└── README.md
-```
+| Status | Description |
+|--------|-------------|
+| `200 OK` | Request successful (GET) |
+| `201 Created` | Employee created successfully (POST) |
+| `400 Bad Request` | Validation error or invalid input |
+| `404 Not Found` | Employee with given UUID doesn't exist |
+| `500 Internal Server Error` | Server error |
 
-## Architecture
+---
 
-```
-┌─────────────────────────────────┐
-│   EmployeeController            │  ← REST API Layer
-│   - Handles HTTP requests       │     Returns ResponseEntity
-│   - Validates input             │     HTTP status codes
-└────────────┬────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────┐
-│   EmployeeService               │  ← Business Logic Layer
-│   - Data validation             │     Generates UUIDs
-│   - Business rules              │     Manages employees
-└────────────┬────────────────────┘
-             │
-             ▼
-┌─────────────────────────────────┐
-│   HashMap (In-Memory)           │  ← Data Storage Layer
-│   - Stores employee objects     │     Mock database
-│   - Pre-loaded with 5 employees │
-└─────────────────────────────────┘
-```
+## 🛠️ Troubleshooting
 
-## Testing
-
-### Mock Data
-
-The application comes pre-loaded with 5 employees:
-
-| Name | Job Title | Salary |
-|------|-----------|--------|
-| John Doe | Software Engineer | $75,000 |
-| Jane Smith | Senior Software Engineer | $95,000 |
-| Michael Johnson | Engineering Manager | $120,000 |
-| Emily Williams | Junior Developer | $68,000 |
-| David Brown | DevOps Engineer | $85,000 |
-
-### Run Tests
-
-```bash
-./gradlew test
-```
-
-### Code Formatting
-
-Format code according to project standards:
-
-```bash
-./gradlew spotlessApply
-```
-
-Check code formatting:
-
-```bash
-./gradlew spotlessCheck
-```
-
-## Troubleshooting
-
-### Issue: "permission denied: ./gradlew"
+### Issue 1: "permission denied: ./gradlew"
 
 **Solution:**
 ```bash
 chmod +x gradlew
 ```
 
-### Issue: Port 8080 already in use
+### Issue 2: Java Version Error
 
-**Find the process:**
+**Error Message:**
+```
+Unsupported class file major version XX
+```
+
+**Solution:**
 ```bash
+# Make sure you're using Java 21
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+java -version
+
+# Stop Gradle daemons
+./gradlew --stop
+
+# Try again
+./gradlew build
+```
+
+### Issue 3: Build Failed with Formatting Violations
+
+**Error Message:**
+```
+Task :api:spotlessJavaCheck FAILED
+The following files had format violations
+```
+
+**Solution:**
+```bash
+# Apply formatting
+./gradlew spotlessApply
+
+# Build again
+./gradlew build
+```
+
+### Issue 4: Port 8080 Already in Use
+
+**Error Message:**
+```
+Port 8080 is already in use
+```
+
+**Solution 1 - Find and Kill the Process:**
+```bash
+# Find what's using port 8080
 lsof -i :8080
+
+# Kill the process (replace PID with actual process ID)
+kill -9 PID
 ```
 
-**Kill the process:**
-```bash
-kill -9 <PID>
-```
-
-**Or change the port in `api/src/main/resources/application.yml`:**
+**Solution 2 - Change the Port:**
+Edit `api/src/main/resources/application.yml`:
 ```yaml
 server:
   port: 8081
 ```
 
-### Issue: Employee not found (404)
+### Issue 5: "Employee not found" (404 Error)
 
-**Cause:** UUIDs are regenerated on each server restart.
+**Cause:** UUIDs are randomly generated when the server starts. They change each time you restart.
 
-**Solution:** Always fetch current UUIDs first:
-```bash
-curl http://localhost:8080/api/v1/employee
-```
+**Solution:**
+1. Get fresh UUIDs first:
+   ```bash
+   curl http://localhost:8080/api/v1/employee
+   ```
+2. Copy a UUID from the response
+3. Use that UUID in your request
 
-### Issue: Java version mismatch
+### Issue 6: Build Succeeds but Server Won't Start
 
-**Check Java version:**
-```bash
-java -version
-```
-
-**Install Java 21:**
-```bash
-# macOS
-brew install openjdk@21
-export JAVA_HOME=$(/usr/libexec/java_home -v 21)
-```
-
-### Issue: Build failed
-
-**Clean and rebuild:**
+**Check if the build actually completed:**
 ```bash
 ./gradlew clean build
 ```
 
-**Stop all Gradle daemons:**
+**Make sure no other instance is running:**
 ```bash
 ./gradlew --stop
+ps aux | grep java
 ```
 
-## Complete Workflow Example
+**Start with verbose logging:**
+```bash
+./gradlew bootRun --info
+```
+
+### Issue 7: Gradle Daemon Issues
+
+**Solution:**
+```bash
+# Stop all daemons
+./gradlew --stop
+
+# Check status
+./gradlew --status
+
+# Clean everything
+rm -rf ~/.gradle/caches/
+rm -rf .gradle/
+
+# Try again
+./gradlew build
+```
+
+### Issue 8: Windows-Specific Issues
+
+**Use `gradlew.bat` instead of `./gradlew`:**
+```cmd
+gradlew.bat build
+gradlew.bat bootRun
+```
+
+**If you get path errors:**
+- Make sure JAVA_HOME is set correctly
+- Use full paths if needed
+- Run Command Prompt as Administrator
+
+---
+
+## 📁 Project Structure
+
+```
+entry-level-java-challenge/
+├── api/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/challenge/api/
+│   │   │   │   ├── controller/
+│   │   │   │   │   └── EmployeeController.java      # REST endpoints
+│   │   │   │   ├── service/
+│   │   │   │   │   └── EmployeeService.java         # Business logic
+│   │   │   │   ├── model/
+│   │   │   │   │   ├── Employee.java                # Interface
+│   │   │   │   │   └── EmployeeImpl.java            # Implementation
+│   │   │   │   ├── dto/
+│   │   │   │   │   └── CreateEmployeeRequest.java   # Request DTO
+│   │   │   │   └── EntryLevelJavaChallengeApplication.java
+│   │   │   └── resources/
+│   │   │       └── application.yml                   # Configuration
+│   │   └── test/
+│   └── build.gradle
+├── buildSrc/
+│   └── src/main/groovy/
+│       └── project-conventions.gradle                # Build configuration
+├── gradle/
+│   └── wrapper/
+│       ├── gradle-wrapper.jar
+│       └── gradle-wrapper.properties                 # Gradle version
+├── gradlew                                          # Gradle wrapper (Unix)
+├── gradlew.bat                                      # Gradle wrapper (Windows)
+├── settings.gradle
+└── README.md
+```
+
+---
+
+## 🏗️ Architecture
+
+```
+┌─────────────────────────────────┐
+│   EmployeeController            │  ← REST API Layer
+│   @RestController                │     - Handles HTTP requests
+│   @RequestMapping               │     - Returns ResponseEntity
+└────────────┬────────────────────┘     - Validates input
+             │
+             ▼
+┌─────────────────────────────────┐
+│   EmployeeService               │  ← Business Logic Layer
+│   @Service                      │     - Data validation
+└────────────┬────────────────────┘     - UUID generation
+             │                           - Business rules
+             ▼
+┌─────────────────────────────────┐
+│   HashMap (In-Memory Storage)   │  ← Data Storage Layer
+│   Map<UUID, Employee>           │     - Mock database
+└─────────────────────────────────┘     - Pre-loaded data
+```
+
+---
+
+## 📝 Complete Workflow Example
+
+Here's a complete example from start to finish:
 
 ```bash
-# Terminal 1: Start the server
+# ===== TERMINAL 1: Setup and Start Server =====
+
+# 1. Navigate to project
+cd entry-level-java-challenge
+
+# 2. Set Java 21
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+java -version
+
+# 3. Clean and setup
+./gradlew --stop
+rm -rf .gradle buildSrc/build
+
+# 4. Format and build
+./gradlew spotlessApply
+./gradlew build
+
+# 5. Start server
 ./gradlew bootRun
 
-# Terminal 2: Test the API
+# Wait for: "Tomcat started on port 8080"
+
+
+# ===== TERMINAL 2: Test the API =====
+
 # 1. View all employees
 curl http://localhost:8080/api/v1/employee
 
-# 2. Copy a UUID from the output above, then view that specific employee
+# 2. Copy a UUID from the output above, then view that employee
 curl http://localhost:8080/api/v1/employee/YOUR-UUID-HERE
 
 # 3. Create a new employee
@@ -404,122 +766,152 @@ curl -X POST http://localhost:8080/api/v1/employee \
 # 4. View all employees again (now includes Sarah)
 curl http://localhost:8080/api/v1/employee
 
-# 5. Get Sarah's UUID from the output, then view her details
+# 5. Get Sarah's UUID from step 4, then view her details
 curl http://localhost:8080/api/v1/employee/SARAH-UUID-HERE
+
+
+# ===== TERMINAL 1: Stop Server =====
+# Press Ctrl + C
 ```
 
-## Browser Testing
+---
 
-You can test GET endpoints directly in your browser:
+## 🎓 Mock Data
 
-- **All employees:** http://localhost:8080/api/v1/employee
-- **Single employee:** http://localhost:8080/api/v1/employee/{uuid}
+The application comes pre-loaded with 5 employees for testing:
 
-## Using Postman
+| Name | Job Title | Salary | Age |
+|------|-----------|--------|-----|
+| John Doe | Software Engineer | $75,000 | 30 |
+| Jane Smith | Senior Software Engineer | $95,000 | 35 |
+| Michael Johnson | Engineering Manager | $120,000 | 42 |
+| Emily Williams | Junior Developer | $68,000 | 28 |
+| David Brown | DevOps Engineer | $85,000 | 33 |
 
-### GET All Employees
-- Method: `GET`
-- URL: `http://localhost:8080/api/v1/employee`
+**Note:** UUIDs are randomly generated each time the server starts.
 
-### GET Single Employee
-- Method: `GET`
-- URL: `http://localhost:8080/api/v1/employee/{uuid}`
+---
 
-### POST Create Employee
-- Method: `POST`
-- URL: `http://localhost:8080/api/v1/employee`
-- Headers: `Content-Type: application/json`
-- Body (raw JSON):
-```json
-{
-  "firstName": "Bob",
-  "lastName": "Smith",
-  "salary": 80000,
-  "age": 28,
-  "jobTitle": "Frontend Developer",
-  "email": "bob.smith@company.com"
-}
+## ✅ Pre-Deployment Checklist
+
+Before submitting or deploying, verify:
+
+- [ ] Java 21 is installed and active
+- [ ] Gradle wrapper properties updated to 8.10.2
+- [ ] Java version in build config set to 21
+- [ ] Code formatted with Spotless: `./gradlew spotlessApply`
+- [ ] Build passes: `./gradlew build`
+- [ ] Server starts successfully: `./gradlew bootRun`
+- [ ] Can view all employees via browser/curl
+- [ ] Can view single employee by UUID
+- [ ] Can create new employee via POST
+- [ ] All endpoints return expected responses
+
+---
+
+## 🔑 Key Features
+
+- ✅ RESTful API design with proper HTTP methods
+- ✅ Spring Boot 3.2.10 framework
+- ✅ In-memory data storage (HashMap)
+- ✅ Automatic UUID generation
+- ✅ Comprehensive input validation
+- ✅ Clean architecture (Controller → Service → Data)
+- ✅ Descriptive error messages
+- ✅ Code formatting with Spotless
+- ✅ Pre-loaded mock data for testing
+
+---
+
+## 📞 Additional Help
+
+### Common Commands Reference
+
+```bash
+# Format code
+./gradlew spotlessApply
+
+# Build project
+./gradlew build
+
+# Clean build
+./gradlew clean build
+
+# Run application
+./gradlew bootRun
+
+# Stop Gradle daemons
+./gradlew --stop
+
+# Check Gradle status
+./gradlew --status
+
+# Run with verbose output
+./gradlew build --info
 ```
 
-## HTTP Status Codes
+### Using Postman Instead of curl
 
-| Status Code | Description |
-|-------------|-------------|
-| `200 OK` | Request successful (GET) |
-| `201 Created` | Employee created successfully (POST) |
-| `400 Bad Request` | Validation error or malformed request |
-| `404 Not Found` | Employee with given UUID not found |
-| `500 Internal Server Error` | Server error |
+1. **GET All Employees**
+   - Method: GET
+   - URL: `http://localhost:8080/api/v1/employee`
 
-## Design Patterns
+2. **GET Single Employee**
+   - Method: GET
+   - URL: `http://localhost:8080/api/v1/employee/{uuid}`
 
-- **Controller-Service Pattern**: Separation of concerns
-- **DTO Pattern**: Clean API contracts
-- **Dependency Injection**: Constructor-based injection
-- **Repository Pattern**: Abstracted data access (via HashMap)
+3. **POST Create Employee**
+   - Method: POST
+   - URL: `http://localhost:8080/api/v1/employee`
+   - Headers: `Content-Type: application/json`
+   - Body (raw JSON):
+   ```json
+   {
+     "firstName": "Test",
+     "lastName": "User",
+     "salary": 80000,
+     "age": 25,
+     "jobTitle": "Developer",
+     "email": "test@example.com"
+   }
+   ```
 
-## Technologies Used
+---
 
-- **Spring Boot 3.2.10** - Application framework
-- **Spring Web** - REST API support
-- **Gradle 8.10.2** - Build tool
-- **Java 21** - Programming language
-- **Spotless** - Code formatter
-- **Lombok** - Boilerplate reduction (optional)
+## 🚨 Important Notes
 
-## Key Features
+1. **Data Persistence:** This application uses in-memory storage. All data resets when you restart the server.
 
-### Input Validation
-- Required field checks
-- Age range validation (18-120)
-- Salary validation (non-negative)
-- Email format validation
+2. **UUIDs Change:** Employee UUIDs are regenerated on each server restart. Always fetch current UUIDs before querying specific employees.
 
-### Error Handling
-- Descriptive error messages
-- Proper HTTP status codes
-- Exception handling with ResponseStatusException
+3. **Java Version:** The project REQUIRES Java 21. It will not work with older versions.
 
-### Data Management
-- In-memory storage (HashMap)
-- Automatic UUID generation
-- Automatic timestamp generation
-- Pre-loaded mock data for testing
+4. **Gradle Version:** Must use Gradle 8.10.2 or higher for Java 21 support.
 
-## Notes
+5. **Code Formatting:** Always run `./gradlew spotlessApply` before building to avoid formatting violations.
 
-- **Data Persistence:** This application uses in-memory storage. All data is reset when the server restarts.
-- **UUIDs:** New UUIDs are generated each time the server starts. Always fetch current UUIDs before querying specific employees.
-- **Production Ready:** For production use, replace the HashMap with a real database (PostgreSQL, MySQL, etc.) using Spring Data JPA.
+6. **Port 8080:** Make sure port 8080 is available. Change in `application.yml` if needed.
 
-## Future Enhancements
+---
 
-Potential improvements for production use:
-
-- [ ] Add database integration (JPA/Hibernate)
-- [ ] Implement UPDATE (PUT) endpoint
-- [ ] Implement DELETE endpoint
-- [ ] Add pagination for GET all employees
-- [ ] Add search and filtering capabilities
-- [ ] Implement Spring Security for authentication
-- [ ] Add Swagger/OpenAPI documentation
-- [ ] Add comprehensive unit and integration tests
-- [ ] Add logging with SLF4J/Logback
-- [ ] Add Docker support
-- [ ] Add CI/CD pipeline
-
-## Contributing
+## 📄 License
 
 This is an educational project for ReliaQuest's Entry-Level Java Challenge.
 
-## License
+---
 
-Educational use only.
+## 🎉 Success!
 
-## Contact
+If you've followed all the steps and can:
+- ✅ Start the server without errors
+- ✅ View all employees in your browser
+- ✅ Get a single employee by UUID
+- ✅ Create new employees via POST request
 
-For questions or issues, please open an issue in the repository.
+**Congratulations! Your Employee Management API is working perfectly!** 🚀
 
 ---
 
 **Built with ❤️ using Spring Boot**
+
+For questions or issues, refer to the [Troubleshooting](#troubleshooting) section above.
