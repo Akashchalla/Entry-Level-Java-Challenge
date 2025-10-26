@@ -8,6 +8,136 @@ A RESTful API for managing employee information, built with Spring Boot. This gu
 
 ---
 
+<!-- ============================================ -->
+<!-- ⚠️ NEW SECTION ADDED BELOW ⚠️ -->
+<!-- ============================================ -->
+
+## ⚠️ CRITICAL: FIRST TIME SETUP REQUIRED ⚠️
+
+**🚨 READ THIS FIRST! If this is your first time running this project after cloning/downloading from GitHub, you MUST complete these setup steps or you will get build errors! 🚨**
+
+### Quick Setup Commands (Copy-Paste All at Once)
+
+Open your terminal in the project directory and run these commands **IN ORDER**:
+
+#### For Mac/Linux:
+
+```bash
+# Step 1: Make gradlew executable
+chmod +x gradlew
+
+# Step 2: Update Gradle version to 8.10.2
+sed -i '' 's/gradle-7.6.4-bin.zip/gradle-8.10.2-bin.zip/' gradle/wrapper/gradle-wrapper.properties
+
+# Step 3: Update Java version to 21 in build configuration
+sed -i '' 's/JavaLanguageVersion.of(17)/JavaLanguageVersion.of(21)/' buildSrc/src/main/groovy/project-conventions.gradle
+
+# Step 4: Clean all cached files
+find buildSrc -name "*.class" -type f -delete
+rm -rf buildSrc/build
+rm -rf .gradle
+rm -rf api/build
+
+# Step 5: Set Java 21 as active (CRITICAL!)
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Step 6: Verify Java 21 is active
+java -version
+
+# Step 7: Stop all Gradle daemons
+./gradlew --stop
+
+# Step 8: Format the code
+./gradlew spotlessApply
+
+# Step 9: Build the project
+./gradlew build
+```
+
+#### For Windows:
+
+```cmd
+REM Step 1: Update Gradle version
+REM Open gradle/wrapper/gradle-wrapper.properties in a text editor
+REM Change: gradle-7.6.4-bin.zip to gradle-8.10.2-bin.zip
+
+REM Step 2: Update Java version
+REM Open buildSrc/src/main/groovy/project-conventions.gradle
+REM Change: JavaLanguageVersion.of(17) to JavaLanguageVersion.of(21)
+
+REM Step 3: Clean cached files
+rmdir /s /q buildSrc\build
+rmdir /s /q .gradle
+rmdir /s /q api\build
+
+REM Step 4: Set Java 21 (adjust path to your Java installation)
+set JAVA_HOME=C:\Program Files\Java\jdk-21
+set PATH=%JAVA_HOME%\bin;%PATH%
+
+REM Step 5: Verify Java version
+java -version
+
+REM Step 6: Stop Gradle daemons
+gradlew.bat --stop
+
+REM Step 7: Format and build
+gradlew.bat spotlessApply
+gradlew.bat build
+```
+
+### Expected Results
+
+After running the commands above:
+
+**After Step 6 (java -version):**
+```
+openjdk version "21" or "21.x.x"
+```
+✅ If you see Java 21, continue!
+❌ If not, install Java 21 first (see [Prerequisites](#prerequisites))
+
+**After Step 9 (./gradlew build):**
+```
+BUILD SUCCESSFUL in Xs
+15 actionable tasks: XX executed
+```
+✅ If you see "BUILD SUCCESSFUL", you're ready to run the app!
+❌ If build failed, see [Troubleshooting First Time Setup](#troubleshooting-first-time-setup)
+
+### Troubleshooting First Time Setup
+
+**Error: "Unsupported class file major version 65" or "69"**
+- You skipped Step 5! Set JAVA_HOME to Java 21 and try again
+- Make sure you're using Java 21: `java -version`
+
+**Error: "permission denied: ./gradlew"**
+- You skipped Step 1! Run: `chmod +x gradlew`
+
+**Error: "spotlessJavaCheck FAILED"**
+- Run: `./gradlew spotlessApply` then `./gradlew build`
+
+**Still having issues?**
+- See detailed [Troubleshooting](#troubleshooting) section below
+- Make sure Java 21 is installed (see [Prerequisites](#prerequisites))
+
+### After First Time Setup
+
+Once you've completed the setup above successfully, for all future runs you only need:
+
+```bash
+# Set Java 21 (do this every time you open a new terminal)
+export JAVA_HOME=$(/usr/libexec/java_home -v 21)
+
+# Start the server
+./gradlew bootRun
+```
+
+---
+
+<!-- ============================================ -->
+<!-- ⚠️ END OF NEW SECTION ⚠️ -->
+<!-- ============================================ -->
+
 ## 📋 Table of Contents
 
 - [Prerequisites](#prerequisites)
